@@ -1,0 +1,36 @@
+# RSA Project: Commands to re-run all steps (including network integration)
+
+# 1. Compile Java sources (target Java 8)
+mkdir -p out
+javac --release 8 -d out src/main/java/rsa/*.java
+
+# 2. Generate receiver's key-pair
+java -cp out rsa.RSAGenKey
+mv keys/public.key  keys/receiver_public.key
+mv keys/private.key keys/receiver_private.key
+
+# 3. Generate sender's key-pair
+java -cp out rsa.RSAGenKey
+mv keys/public.key  keys/sender_public.key
+mv keys/private.key keys/sender_private.key
+
+# 4. Prepare plaintext input
+echo harakany > input.txt
+
+# 5. Authenticated Encryption
+java -cp out rsa.RSAAuthEncrypt input.txt keys/sender_private.key keys/receiver_public.key cipher.txt
+
+# 6. Decrypt & Verify
+java -cp out rsa.RSAAuthDecrypt cipher.txt keys/receiver_private.key keys/sender_public.key recovered.txt
+
+# 7. Network Integration
+
+# 7a. Start the server (keep this running in its own terminal)
+java -cp out rsa.RSAServer 9999 keys/receiver_private.key keys/sender_public.key network_recovered.txt
+
+# 7b. Run the client (in another terminal)
+# Ensure input.txt exists (same as step 4)
+echo harakany > input.txt
+java -cp out rsa.RSAClient localhost 9999 input.txt keys/sender_private.key keys/receiver_public.key
+
+# Check 'network_recovered.txt' for the decrypted message

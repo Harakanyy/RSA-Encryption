@@ -27,3 +27,19 @@ A lightweight Java implementation of the RSA cryptosystem supporting:
    Clear class separation for easy integration into networked applications.
 
 ---
+## Prerequisites
+- Java 11+ installed
+
+## Build & Run (plain javac)
+```bash
+# compile all Java files
+javac -d out src/main/java/rsa/*.java
+
+# generate keys
+java -cp out rsa.RSAGenKey
+
+# encrypt
+java -cp out rsa.RSAEncrypt plaintext.txt keys/public.key ciphertext.bin
+
+# decrypt
+java -cp out rsa.RSADecrypt ciphertext.bin keys/private.key recovered.txt
